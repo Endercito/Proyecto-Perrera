@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador · Perrera Municipal Oberá</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #050811;
+            --glass-bg: rgba(255, 255, 255, 0.055);
+            --glass-border: rgba(255, 255, 255, 0.16);
+            --glass-highlight: rgba(255, 255, 255, 0.32);
+            --accent-cyan: #00f2fe;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --accent-purple: #a855f7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --radius-xl: 26px;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .liquid-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: radial-gradient(circle at 80% 10%, #131c38 0%, #050811 75%);
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.38;
+        }
+        .orb-1 { width: 460px; height: 460px; background: #00f2fe; top: -100px; right: -80px; }
+        .orb-2 { width: 440px; height: 440px; background: #a855f7; bottom: -120px; left: -100px; }
+
+        /* LOGIN SCREEN */
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .login-card {
+            background: linear-gradient(155deg, rgba(255,255,255,0.09), rgba(255,255,255,0.025));
+            backdrop-filter: blur(30px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 28px 70px rgba(0,0,0,0.6), inset 0 1px 0 var(--glass-highlight);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem 2.2rem;
+            width: 100%;
+            max-width: 430px;
+        }
+
+        .login-card h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.65rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .login-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.6rem;
+        }
+
+        /* DASHBOARD LAYOUT */
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 1.5rem 1.5rem 4rem;
+        }
+
+        .topbar {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.4), inset 0 1px 0 var(--glass-highlight);
+            border-radius: 999px;
+            padding: 0.85rem 1.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .topbar h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .btn-glass {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 0.55rem 1.15rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-glass:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: var(--glass-highlight);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-emerald));
+            color: #041019;
+            border: none;
+            padding: 0.78rem 1.4rem;
+            border-radius: var(--radius-md);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 26px rgba(0, 242, 254, 0.35);
+        }
+
+        /* KPI CARDS */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: linear-gradient(150deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+            backdrop-filter: blur(22px);
+            border: 1px solid var(--glass-border);
+            box-shadow: inset 0 1px 0 var(--glass-highlight);
+            border-radius: var(--radius-lg);
+            padding: 1.35rem;
+        }
+
+        .kpi-card .num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.1rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.35rem;
+        }
+
+        .kpi-card .lbl {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+        }
+
+        /* PANEL GRID: FORMULARIO + TABLA */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 1.75rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1080px) {
+            .admin-grid { grid-template-columns: 1fr; }
+        }
+
+        .glass-panel {
+            background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.025));
+            backdrop-filter: blur(26px) saturate(170%);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.45), inset 0 1px 0 var(--glass-highlight);
+            border-radius: var(--radius-xl);
+            padding: 1.75rem;
+        }
+
+        .glass-panel h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group { margin-bottom: 0.95rem; }
+
+        .form-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.35rem;
+        }
+
+        .input-glass, select.input-glass, textarea.input-glass {
+            width: 100%;
+            padding: 0.68rem 0.9rem;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(10, 15, 30, 0.55);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        select.input-glass option {
+            background: #0f172a;
+            color: #fff;
+        }
+
+        .input-glass:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        /* BOTONES TOGGLE INTERACTIVOS (SI/NO) */
+        .toggle-pills-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.65rem 0.85rem;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.04);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn input { display: none; }
+
+        .toggle-btn.active {
+            background: rgba(0, 242, 254, 0.16);
+            border-color: var(--accent-cyan);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.18);
+        }
+
+        .toggle-btn.active-warn {
+            background: rgba(244, 63, 94, 0.18);
+            border-color: var(--accent-rose);
+            color: #fecdd3;
+        }
+
+        /* LISTA / TARJETAS DE GESTIÓN ADMIN */
+        .admin-pet-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .admin-pet-item {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: var(--radius-lg);
+            padding: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .admin-pet-top {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .admin-thumb {
+            width: 68px;
+            height: 68px;
+            border-radius: 14px;
+            object-fit: cover;
+            background: #1e293b;
+            display: grid;
+            place-items: center;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+
+        .admin-pet-info { flex: 1; min-width: 200px; }
+
+        .admin-pet-info h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 0.22rem 0.65rem;
+            border-radius: 999px;
+        }
+
+        .st-DISPONIBLE { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .st-RESERVADO { background: rgba(245, 158, 11, 0.22); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.45); }
+        .st-ADOPTADO { background: rgba(168, 85, 247, 0.22); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.45); }
+
+        .adoptante-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            border-radius: var(--radius-md);
+            padding: 0.85rem 1rem;
+            font-size: 0.84rem;
+            color: #fde68a;
+        }
+
+        .adoptante-box strong { color: #fff; }
+
+        .admin-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 0.65rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .state-btn-group {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-state {
+            padding: 0.38rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.05);
+            color: #cbd5e1;
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-state:hover { background: rgba(255,255,255,0.14); color: #fff; }
+        .btn-state.current { border-color: var(--accent-cyan); background: rgba(0, 242, 254, 0.2); color: #fff; }
+
+        .btn-danger {
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px solid rgba(244, 63, 94, 0.35);
+            color: #fda4af;
+            padding: 0.38rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-danger:hover { background: rgba(244, 63, 94, 0.3); color: #fff; }
+
+        .feedback-banner {
+            padding: 0.8rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.86rem;
+            margin-top: 0.85rem;
+            display: none;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            color: #a7f3d0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="liquid-canvas">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    {% if not logged_in %}
+    <!-- PANTALLA DE LOGIN ADMINISTRADOR -->
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛡️</div>
+            <h1>Acceso Municipal</h1>
+            <p>Ingresá las credenciales oficiales de la Perrera Municipal de Oberá.</p>
+
+            <form id="form-login">
+                <div class="form-group">
+                    <label for="usuario">Usuario</label>
+                    <input type="text" id="usuario" class="input-glass" placeholder="Ingresá tu usuario" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" class="input-glass" placeholder="••••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 0.5rem;">Ingresar al Panel</button>
+                <div id="login-error" class="feedback-banner" style="background: rgba(244,63,94,0.2); border-color: rgba(244,63,94,0.45); color: #fecdd3;"></div>
+            </form>
+
+            <div style="margin-top: 1.4rem; text-align: center;">
+                <a href="/" class="btn-glass">← Volver al Catálogo Público</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('form-login').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const errBox = document.getElementById('login-error');
+            errBox.style.display = 'none';
+
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    usuario: document.getElementById('usuario').value,
+                    password: document.getElementById('password').value
+                })
+            });
+            const data = await res.json();
+            if (data.ok) {
+                window.location.reload();
+            } else {
+                errBox.style.display = 'block';
+                errBox.textContent = '❌ ' + data.error;
+            }
+        });
+    </script>
+
+    {% else %}
+    <!-- PANEL DE ADMINISTRACIÓN AUTENTICADO -->
+    <div class="container">
+        <header class="topbar">
+            <h2>🐾 Gestión Perrera Municipal · Oberá</h2>
+            <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+                <a href="/" class="btn-glass">🌐 Ver Catálogo Público</a>
+                <button onclick="cerrarSesion()" class="btn-glass" style="border-color: rgba(244,63,94,0.4); color: #fda4af;">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <!-- ESTADÍSTICAS RÁPIDAS -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="num" id="kpi-total" style="color: var(--accent-cyan);">0</div>
+                <div class="lbl">Total Registrados</div>
+            </div>
+            <div class="kpi-card">
+                <div class="num" id="kpi-disponibles" style="color: var(--accent-emerald);">0</div>
+                <div class="lbl">Disponibles en Catálogo</div>
+            </div>
+            <div class="kpi-card">
+                <div class="num" id="kpi-reservados" style="color: var(--accent-amber);">0</div>
+                <div class="lbl">Reservados (Pendiente retiro)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="num" id="kpi-adoptados" style="color: var(--accent-purple);">0</div>
+                <div class="lbl">Adoptados (Fuera de catálogo)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="num" id="kpi-medica" style="color: var(--accent-rose);">0</div>
+                <div class="lbl">Requieren Ayuda Médica</div>
+            </div>
+        </div>
+
+        <div class="admin-grid">
+            <!-- COLUMNA IZQUIERDA: ALTA / EDICIÓN DE MASCOTA -->
+            <section class="glass-panel">
+                <h3 id="form-panel-titulo">➕ Cargar Nueva Mascota</h3>
+                <form id="form-mascota" enctype="multipart/form-data">
+                    <input type="hidden" id="edit-id" value="">
+
+                    <div class="form-group">
+                        <label for="m-nombre">Nombre de la mascota *</label>
+                        <input type="text" id="m-nombre" name="nombre" class="input-glass" placeholder="Ej: Rocco" required>
+                    </div>
+
+                    <div class="row-2">
+                        <div class="form-group">
+                            <label for="m-especie">Especie</label>
+                            <select id="m-especie" name="especie" class="input-glass">
+                                <option value="Perro">🐕 Perro</option>
+                                <option value="Gato">🐈 Gato</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="m-sexo">Sexo</label>
+                            <select id="m-sexo" name="sexo" class="input-glass">
+                                <option value="Macho">Macho</option>
+                                <option value="Hembra">Hembra</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row-2">
+                        <div class="form-group">
+                            <label for="m-edad-valor">Edad (cantidad) *</label>
+                            <input type="number" id="m-edad-valor" name="edad_valor" class="input-glass" min="1" max="30" value="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="m-edad-unidad">Unidad de edad</label>
+                            <select id="m-edad-unidad" name="edad_unidad" class="input-glass">
+                                <option value="meses">Meses</option>
+                                <option value="años" selected>Años</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row-2">
+                        <div class="form-group">
+                            <label for="m-tamanio">Tamaño</label>
+                            <select id="m-tamanio" name="tamanio" class="input-glass">
+                                <option value="Chico">Chico</option>
+                                <option value="Mediano" selected>Mediano</option>
+                                <option value="Grande">Grande</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="m-estado">Estado inicial</label>
+                            <select id="m-estado" name="estado" class="input-glass">
+                                <option value="DISPONIBLE">DISPONIBLE</option>
+                                <option value="RESERVADO">RESERVADO</option>
+                                <option value="ADOPTADO">ADOPTADO</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- BOTONES INTERACTIVOS DE ESTADO SANITARIO Y RAZA -->
+                    <label style="display:block; font-size:0.82rem; font-weight:600; color:#cbd5e1; margin-bottom:0.45rem;">Condiciones y Ficha Sanitaria (clic para activar/desactivar)</label>
+                    <div class="toggle-pills-grid">
+                        <label class="toggle-btn" id="lbl-vacunado">
+                            <span>💉 Vacunado</span>
+                            <span id="txt-vacunado">NO</span>
+                            <input type="checkbox" id="m-vacunado" name="vacunado" onchange="actualizarToggle(this, 'lbl-vacunado', 'txt-vacunado', false)">
+                        </label>
+
+                        <label class="toggle-btn" id="lbl-castrado">
+                            <span>✂️ Castrado</span>
+                            <span id="txt-castrado">NO</span>
+                            <input type="checkbox" id="m-castrado" name="castrado" onchange="actualizarToggle(this, 'lbl-castrado', 'txt-castrado', false)">
+                        </label>
+
+                        <label class="toggle-btn" id="lbl-desparasitado">
+                            <span>💊 Desparasitado</span>
+                            <span id="txt-desparasitado">NO</span>
+                            <input type="checkbox" id="m-desparasitado" name="desparasitado" onchange="actualizarToggle(this, 'lbl-desparasitado', 'txt-desparasitado', false)">
+                        </label>
+
+                        <label class="toggle-btn" id="lbl-raza">
+                            <span>🧬 ¿Tiene Raza?</span>
+                            <span id="txt-raza">NO</span>
+                            <input type="checkbox" id="m-tiene-raza" name="tiene_raza" onchange="toggleCampoRaza(this)">
+                        </label>
+
+                        <label class="toggle-btn" id="lbl-medica" style="grid-column: 1 / -1;">
+                            <span>🩺 ¿Necesita Ayuda Médica?</span>
+                            <span id="txt-medica">NO</span>
+                            <input type="checkbox" id="m-ayuda-medica" name="necesita_ayuda_medica" onchange="toggleCampoMedico(this)">
+                        </label>
+                    </div>
+
+                    <div class="form-group" id="grupo-raza" style="display: none;">
+                        <label for="m-raza">Especificar Raza</label>
+                        <input type="text" id="m-raza" name="raza" class="input-glass" placeholder="Ej: Caniche, Labrador, Siamés...">
+                    </div>
+
+                    <div class="form-group" id="grupo-medico" style="display: none;">
+                        <label for="m-detalle-medico">Detalle del tratamiento o ayuda médica</label>
+                        <input type="text" id="m-detalle-medico" name="detalle_medico" class="input-glass" placeholder="Ej: Medicación dermatológica por 10 días">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="m-cualidades">✨ Cualidades y comportamiento</label>
+                        <textarea id="m-cualidades" name="cualidades" class="input-glass" rows="2" placeholder="Ej: Muy dócil, ideal para departamentos, juguetón..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="m-defectos">📌 Defectos o cuidados especiales</label>
+                        <textarea id="m-defectos" name="defectos" class="input-glass" rows="2" placeholder="Ej: No se lleva bien con otros machos, salta rejas bajas..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="m-foto-archivo">📸 Subir Foto desde dispositivo (opcional)</label>
+                        <input type="file" id="m-foto-archivo" name="foto_archivo" accept="image/*" class="input-glass" style="padding: 0.5rem;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="m-foto-url">🔗 O pegar URL de imagen (opcional)</label>
+                        <input type="url" id="m-foto-url" name="foto_url" class="input-glass" placeholder="https://...">
+                    </div>
+
+                    <div style="display: flex; gap: 0.6rem;">
+                        <button type="submit" class="btn-primary" id="btn-guardar-mascota" style="flex: 1;">Guardar Mascota</button>
+                        <button type="button" class="btn-glass" id="btn-cancelar-edicion" style="display: none;" onclick="resetearFormulario()">Cancelar</button>
+                    </div>
+                    <div id="admin-feedback" class="feedback-banner"></div>
+                </form>
+            </section>
+
+            <!-- COLUMNA DERECHA: LISTADO Y CONTROL DE ESTADOS -->
+            <section class="glass-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.2rem;">
+                    <h3 style="margin-bottom: 0;">📋 Mascotas Registradas y Reservas</h3>
+                    <select id="filtro-admin-estado" class="input-glass" style="width: auto;" onchange="renderizarListaAdmin()">
+                        <option value="TODOS">Todos los estados</option>
+                        <option value="RESERVADO">🟡 Solo Reservados</option>
+                        <option value="DISPONIBLE">🟢 Solo Disponibles</option>
+                        <option value="ADOPTADO">🟣 Solo Adoptados</option>
+                    </select>
+                </div>
+
+                <div id="admin-lista" class="admin-pet-list"></div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        let mascotasAdminCache = [];
+
+        function actualizarToggle(checkbox, lblId, txtId, isWarn) {
+            const lbl = document.getElementById(lblId);
+            const txt = document.getElementById(txtId);
+            if (checkbox.checked) {
+                lbl.classList.add(isWarn ? 'active-warn' : 'active');
+                txt.textContent = 'SÍ';
+            } else {
+                lbl.classList.remove('active', 'active-warn');
+                txt.textContent = 'NO';
+            }
+        }
+
+        function toggleCampoRaza(checkbox) {
+            actualizarToggle(checkbox, 'lbl-raza', 'txt-raza', false);
+            document.getElementById('grupo-raza').style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        function toggleCampoMedico(checkbox) {
+            actualizarToggle(checkbox, 'lbl-medica', 'txt-medica', true);
+            document.getElementById('grupo-medico').style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        async function cargarDatosAdmin() {
+            const res = await fetch('/api/admin/mascotas');
+            if (res.status === 401) {
+                window.location.reload();
+                return;
+            }
+            const data = await res.json();
+            if (data.ok) {
+                mascotasAdminCache = data.mascotas;
+                document.getElementById('kpi-total').textContent = data.stats.total;
+                document.getElementById('kpi-disponibles').textContent = data.stats.disponibles;
+                document.getElementById('kpi-reservados').textContent = data.stats.reservados;
+                document.getElementById('kpi-adoptados').textContent = data.stats.adoptados;
+                document.getElementById('kpi-medica').textContent = data.stats.ayuda_medica;
+                renderizarListaAdmin();
+            }
+        }
+
+        function renderizarListaAdmin() {
+            const contenedor = document.getElementById('admin-lista');
+            const filtro = document.getElementById('filtro-admin-estado').value;
+
+            const lista = mascotasAdminCache.filter(m => filtro === 'TODOS' || m.estado === filtro);
+
+            if (lista.length === 0) {
+                contenedor.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 2rem;">No hay mascotas en esta categoría.</p>`;
+                return;
+            }
+
+            contenedor.innerHTML = lista.map(m => {
+                const icono = m.especie === 'Gato' ? '🐈' : '🐕';
+                const thumb = m.foto_url
+                    ? `<img src="${m.foto_url}" class="admin-thumb" onerror="this.outerHTML='<div class=\'admin-thumb\'>${icono}</div>'">`
+                    : `<div class="admin-thumb">${icono}</div>`;
+
+                let adoptanteHtml = '';
+                if (m.adoptante_nombre) {
+                    adoptanteHtml = `
+                        <div class="adoptante-box">
+                            <strong>👤 Ciudadano Vinculado (SQLite3):</strong> ${m.adoptante_nombre} · <strong>DNI:</strong> ${m.adoptante_dni} · <strong>Tel:</strong> ${m.adoptante_telefono}<br>
+                            <strong>📅 Retiro programado:</strong> ${m.adoptante_fecha_retiro} ·
+                            <strong>🚐 Transporte municipal:</strong> ${m.necesita_transporte ? 'SÍ REQUIERE TRASLADO' : 'Retira por cuenta propia'}
+                            ${m.adoptante_observaciones ? `<br><strong>📝 Obs:</strong> ${m.adoptante_observaciones}` : ''}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="admin-pet-item">
+                        <div class="admin-pet-top">
+                            ${thumb}
+                            <div class="admin-pet-info">
+                                <h4>
+                                    ${m.nombre}
+                                    <span class="status-badge st-${m.estado}">${m.estado}</span>
+                                </h4>
+                                <p style="font-size: 0.83rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                    ${m.especie} · ${m.sexo} · ${m.edad_valor} ${m.edad_unidad} · ${m.tamanio} · ${m.tiene_raza ? m.raza : 'Mestizo'}
+                                </p>
+                                <p style="font-size: 0.78rem; color: #cbd5e1; margin-top: 0.3rem;">
+                                    ${m.vacunado ? '💉 Vacunado' : '❌ Sin vacunar'} ·
+                                    ${m.castrado ? '✂️ Castrado' : '❌ Sin castrar'} ·
+                                    ${m.desparasitado ? '💊 Desparasitado' : '❌ Sin desparasitar'}
+                                    ${m.necesita_ayuda_medica ? ` · <span style="color:#fda4af;">🩺 Ayuda médica: ${m.detalle_medico}</span>` : ''}
+                                </p>
+                            </div>
+                        </div>
+
+                        ${adoptanteHtml}
+
+                        <div class="admin-controls">
+                            <div class="state-btn-group">
+                                <button class="btn-state ${m.estado === 'DISPONIBLE' ? 'current' : ''}" onclick="cambiarEstado(${m.id}, 'DISPONIBLE')">🟢 DISPONIBLE</button>
+                                <button class="btn-state ${m.estado === 'RESERVADO' ? 'current' : ''}" onclick="cambiarEstado(${m.id}, 'RESERVADO')">🟡 RESERVADO</button>
+                                <button class="btn-state ${m.estado === 'ADOPTADO' ? 'current' : ''}" onclick="cambiarEstado(${m.id}, 'ADOPTADO')">🟣 ADOPTADO (Sacar de catálogo)</button>
+                            </div>
+                            <div style="display: flex; gap: 0.4rem;">
+                                <button class="btn-state" onclick="cargarParaEditar(${m.id})">✏️ Editar</button>
+                                <button class="btn-danger" onclick="eliminarMascota(${m.id}, '${m.nombre.replace(/'/g, "\'")}')">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('form-mascota').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-id').value;
+            const formData = new FormData(this);
+
+            // Asegurar envío explícito de checkboxes
+            formData.set('vacunado', document.getElementById('m-vacunado').checked ? 'true' : 'false');
+            formData.set('castrado', document.getElementById('m-castrado').checked ? 'true' : 'false');
+            formData.set('desparasitado', document.getElementById('m-desparasitado').checked ? 'true' : 'false');
+            formData.set('tiene_raza', document.getElementById('m-tiene-raza').checked ? 'true' : 'false');
+            formData.set('necesita_ayuda_medica', document.getElementById('m-ayuda-medica').checked ? 'true' : 'false');
+
+            const url = editId ? `/api/admin/mascotas/${editId}` : '/api/admin/mascotas';
+            const method = editId ? 'PUT' : 'POST';
+
+            const res = await fetch(url, { method: method, body: formData });
+            const data = await res.json();
+
+            const fb = document.getElementById('admin-feedback');
+            fb.style.display = 'block';
+            if (data.ok) {
+                fb.textContent = '✅ ' + data.mensaje;
+                resetearFormulario();
+                await cargarDatosAdmin();
+                setTimeout(() => { fb.style.display = 'none'; }, 3500);
+            } else {
+                fb.textContent = '❌ ' + (data.error || 'Error al guardar.');
+            }
+        });
+
+        async function cambiarEstado(id, nuevoEstado) {
+            if (nuevoEstado === 'DISPONIBLE') {
+                const m = mascotasAdminCache.find(x => x.id === id);
+                if (m && m.estado === 'RESERVADO' && !confirm('Al volver a DISPONIBLE se desvinculará la reserva actual del ciudadano. ¿Continuar?')) {
+                    return;
+                }
+            }
+            const res = await fetch(`/api/admin/mascotas/${id}/estado`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: nuevoEstado })
+            });
+            const data = await res.json();
+            if (data.ok) {
+                await cargarDatosAdmin();
+            }
+        }
+
+        function cargarParaEditar(id) {
+            const m = mascotasAdminCache.find(x => x.id === id);
+            if (!m) return;
+
+            document.getElementById('edit-id').value = m.id;
+            document.getElementById('form-panel-titulo').textContent = `✏️ Editando a ${m.nombre}`;
+            document.getElementById('btn-guardar-mascota').textContent = 'Actualizar Ficha';
+            document.getElementById('btn-cancelar-edicion').style.display = 'inline-flex';
+
+            document.getElementById('m-nombre').value = m.nombre;
+            document.getElementById('m-especie').value = m.especie;
+            document.getElementById('m-sexo').value = m.sexo;
+            document.getElementById('m-edad-valor').value = m.edad_valor;
+            document.getElementById('m-edad-unidad').value = m.edad_unidad;
+            document.getElementById('m-tamanio').value = m.tamanio;
+            document.getElementById('m-estado').value = m.estado;
+            document.getElementById('m-cualidades').value = m.cualidades || '';
+            document.getElementById('m-defectos').value = m.defectos || '';
+            document.getElementById('m-foto-url').value = m.foto_url || '';
+
+            const chkVac = document.getElementById('m-vacunado');
+            chkVac.checked = m.vacunado;
+            actualizarToggle(chkVac, 'lbl-vacunado', 'txt-vacunado', false);
+
+            const chkCas = document.getElementById('m-castrado');
+            chkCas.checked = m.castrado;
+            actualizarToggle(chkCas, 'lbl-castrado', 'txt-castrado', false);
+
+            const chkDes = document.getElementById('m-desparasitado');
+            chkDes.checked = m.desparasitado;
+            actualizarToggle(chkDes, 'lbl-desparasitado', 'txt-desparasitado', false);
+
+            const chkRaza = document.getElementById('m-tiene-raza');
+            chkRaza.checked = m.tiene_raza;
+            toggleCampoRaza(chkRaza);
+            document.getElementById('m-raza').value = m.tiene_raza ? m.raza : '';
+
+            const chkMed = document.getElementById('m-ayuda-medica');
+            chkMed.checked = m.necesita_ayuda_medica;
+            toggleCampoMedico(chkMed);
+            document.getElementById('m-detalle-medico').value = m.detalle_medico || '';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetearFormulario() {
+            document.getElementById('form-mascota').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('form-panel-titulo').textContent = '➕ Cargar Nueva Mascota';
+            document.getElementById('btn-guardar-mascota').textContent = 'Guardar Mascota';
+            document.getElementById('btn-cancelar-edicion').style.display = 'none';
+
+            ['m-vacunado', 'm-castrado', 'm-desparasitado', 'm-tiene-raza', 'm-ayuda-medica'].forEach(id => {
+                document.getElementById(id).checked = false;
+            });
+            actualizarToggle(document.getElementById('m-vacunado'), 'lbl-vacunado', 'txt-vacunado', false);
+            actualizarToggle(document.getElementById('m-castrado'), 'lbl-castrado', 'txt-castrado', false);
+            actualizarToggle(document.getElementById('m-desparasitado'), 'lbl-desparasitado', 'txt-desparasitado', false);
+            toggleCampoRaza(document.getElementById('m-tiene-raza'));
+            toggleCampoMedico(document.getElementById('m-ayuda-medica'));
+        }
+
+        async function eliminarMascota(id, nombre) {
+            if (!confirm(`¿Seguro que querés eliminar definitivamente a ${nombre} de la base de datos?`)) return;
+            const res = await fetch(`/api/admin/mascotas/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.ok) {
+                await cargarDatosAdmin();
+            }
+        }
+
+        async function cerrarSesion() {
+            await fetch('/api/admin/logout', { method: 'POST' });
+            window.location.reload();
+        }
+
+        cargarDatosAdmin();
+    </script>
+    {% endif %}
+</body>
+</html>
